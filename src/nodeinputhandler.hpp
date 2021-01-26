@@ -28,17 +28,20 @@ namespace ovms {
 
 using BlobMap = std::unordered_map<std::string, InferenceEngine::Blob::Ptr>;
 
+using session_id_t = uint32_t;  // TODO double from nodesessionmetadata
+
 class NodeInputHandler {
+protected:
     BlobMap inputBlobs;
     uint32_t expectedDependencies;
 
 public:
     NodeInputHandler(uint32_t inputsMissingCount);
-    void setInput(const std::string& inputName, InferenceEngine::Blob::Ptr& blobPtr);
-    const BlobMap& getInputs() const { return inputBlobs; }
+    virtual void setInput(const std::string& inputName, InferenceEngine::Blob::Ptr& blobPtr, session_id_t shardId);
+    virtual const BlobMap& getInputs() const { return inputBlobs; }
     void clearInputs();
-    virtual bool isReady();
-    void notifyFinishedDependency();
-    const BlobMap& getInputBlobs() const;
+    bool isReady();
+    virtual void notifyFinishedDependency();
+    virtual ~NodeInputHandler() = default;
 };
 }  // namespace ovms

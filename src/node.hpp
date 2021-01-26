@@ -16,6 +16,7 @@
 #pragma once
 
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -51,6 +52,11 @@ protected:
     // Input/Output name mapping and list of required inputs from previous nodes
     std::unordered_map<std::string, Aliases> blobNamesMapping;
 
+    // TODO make fields below const after integration of PipelineDefinition with Demultiplexer/Gather
+    std::optional<std::set<std::string>> gatherFrom;
+    std::optional<uint16_t> demultiplexCount;
+    // end TODO
+
 public:
     Node(const std::string& nodeName);
 
@@ -66,7 +72,6 @@ protected:
 
 public:
     Status setInputs(const Node& dependency, BlobMap& inputs, NodeSessionMetadata& metadata);
-    Status setInputs(const Node& dependency, BlobMap& inputs);
     Status setInputs(const Node& dependency, SessionResults& inputs);
 
     virtual void addDependency(Node& node, const Aliases& blobNamesMapping) {
@@ -94,7 +99,7 @@ public:
 protected:
     NodeSession& getNodeSession(const NodeSessionMetadata& metadata);
     NodeSession& getNodeSession(const session_key_t& sessionKey) const;
-    virtual std::unique_ptr<NodeSession> createNodeSession(const NodeSessionMetadata& metadata);
+    virtual std::unique_ptr<NodeSession> createNodeSession(const NodeSessionMetadata& metadata, session_id_t shardsCount);
 };
 
 }  // namespace ovms
