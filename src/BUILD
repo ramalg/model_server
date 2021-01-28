@@ -22,6 +22,8 @@ cc_library(
         "blobmap.hpp",
         "config.cpp",
         "config.hpp",
+        "custom_node.cpp",
+        "custom_node.hpp",
         "custom_node_interface.hpp",
         "custom_node_library_manager.cpp",
         "custom_node_library_manager.hpp",
@@ -190,6 +192,15 @@ cc_binary(
     name = "lib_node_missing_implementation.so",
     srcs = [
 	"test/custom_nodes/node_missing_implementation.cpp",
+	"custom_node_interface.hpp",
+    ],
+    linkshared = 1,
+)
+
+cc_binary(
+    name = "lib_node_addition.so",
+    srcs = [
+	"test/custom_nodes/node_addition.cpp",
 	"custom_node_interface.hpp",
     ],
     linkshared = 1,
