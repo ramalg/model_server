@@ -15,15 +15,18 @@
 //*****************************************************************************
 #pragma once
 
+#include <memory>
 #include <string>
 #include <unordered_map>
-#include <memory>
 
+#include "custom_node_interface.hpp"
 #include "node.hpp"
-#include "node_library.hpp"
 #include "nodeinfo.hpp"
+#include "pipelineeventqueue.hpp"
 
 namespace ovms {
+
+class NodeLibrary;
 
 class CustomNode : public Node {
     NodeLibrary library;
@@ -42,6 +45,8 @@ public:
     Status execute(session_key_t sessionKey, PipelineEventQueue& notifyEndQueue) override;
 
     Status fetchResults(NodeSession& nodeSession, SessionResults& nodeSessionOutputs) override;
+
+    std::unique_ptr<NodeSession> createNodeSession(const NodeSessionMetadata& metadata) override;
 };
 
 }  // namespace ovms

@@ -14,7 +14,10 @@
 // limitations under the License.
 //*****************************************************************************
 #include "custom_node.hpp"
+
+#include "customnodesession.hpp"
 #include "logging.hpp"
+#include "node_library.hpp"
 
 namespace ovms {
 
@@ -40,14 +43,22 @@ CustomNode::CustomNode(
 }
 
 Status CustomNode::execute(session_key_t sessionKey, PipelineEventQueue& notifyEndQueue) {
-    int i;
-    this->library.execute(nullptr, 0, nullptr, &i, this->_parameters.get(), this->parameters.size());
-    notifyEndQueue.push({*this, sessionKey});
-    return StatusCode::UNKNOWN_ERROR;
+    auto& nodeSession = getNodeSession(sessionKey);
+    auto& customNodeSession = static_cast<CustomNodeSession&>(nodeSession);
+    return customNodeSession.execute(notifyEndQueue, *this);
+
+    // int i;
+    // this->library.execute(nullptr, 0, nullptr, &i, this->_parameters.get(), this->parameters.size());
+    // notifyEndQueue.push({*this, sessionKey});
+    // return StatusCode::UNKNOWN_ERROR;
 }
 
 Status CustomNode::fetchResults(NodeSession& nodeSession, SessionResults& nodeSessionOutputs) {
     return StatusCode::UNKNOWN_ERROR;
+}
+
+std::unique_ptr<NodeSession> CustomNode::createNodeSession(const NodeSessionMetadata& metadata) {
+    return std::make_unique<CustomNodeSession>(metadata, getName(), previous.size());
 }
 
 }  // namespace ovms

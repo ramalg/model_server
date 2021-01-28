@@ -28,6 +28,8 @@ cc_library(
         "custom_node_library_manager.cpp",
         "custom_node_library_manager.hpp",
         "custom_node_output_allocator.hpp",
+        "customnodesession.cpp",
+        "customnodesession.hpp",
         "customloaderconfig.hpp",
 	    "customloaders.hpp",
 	    "customloaders.cpp",
@@ -198,9 +200,9 @@ cc_binary(
 )
 
 cc_binary(
-    name = "lib_node_addition.so",
+    name = "lib_node_add_sub.so",
     srcs = [
-	"test/custom_nodes/node_addition.cpp",
+	"test/custom_nodes/node_add_sub.cpp",
 	"custom_node_interface.hpp",
     ],
     linkshared = 1,
@@ -297,6 +299,7 @@ cc_test(
         "//src:libsampleloader.so",
         "//src:lib_node_mock.so",
         "//src:lib_node_missing_implementation.so",
+        "//src:lib_node_add_sub.so",
         "@com_google_googletest//:gtest",
     ],
     copts = [

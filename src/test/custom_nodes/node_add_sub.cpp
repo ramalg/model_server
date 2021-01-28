@@ -16,24 +16,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
 
 #include "../../custom_node_interface.hpp"
 
 extern "C" int execute(const struct CustomNodeTensor* inputs, int inputsLength, struct CustomNodeTensor** outputs, int* outputsLength, const struct CustomNodeParam* params, int paramsLength) {
-    float addValue1 = 0.0f;
-    float addValue2 = 0.0f;
+    float addValue = 0.0f;
+    float subValue = 0.0f;
 
     for (int i = 0; i < paramsLength; i++) {
-        if (strcmp(params[i].key, "add_value_1") == 0) {
-            addValue1 = atof(params[i].value);
+        if (strcmp(params[i].key, "add_value") == 0) {
+            addValue = atof(params[i].value);
         }
-        if (strcmp(params[i].key, "add_value_2") == 0) {
-            addValue2 = atof(params[i].value);
+        if (strcmp(params[i].key, "sub_value") == 0) {
+            subValue = atof(params[i].value);
         }
     }
 
-    std::cout << "CUSTOM ADDITION NODE => Parameters passed: add_value_1:" << addValue1 << "; add_value_2:" << addValue2 << std::endl;
+    printf("CUSTOM ADD_SUB NODE => Parameters passed: add_value:(%f); sub_value:(%f)\n", addValue, subValue);
+    fflush(stdout);
 
     *outputsLength = 0;
     return 0;
