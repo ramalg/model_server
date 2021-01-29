@@ -51,6 +51,8 @@ protected:
     // Input/Output name mapping and list of required inputs from previous nodes
     std::unordered_map<std::string, Aliases> blobNamesMapping;
 
+    size_t demultiplyCount = 0;
+
 public:
     Node(const std::string& nodeName);
 

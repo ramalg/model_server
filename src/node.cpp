@@ -34,7 +34,15 @@ Status Node::fetchResults(session_key_t sessionId, SessionResults& nodeSessionOu
         return StatusCode::UNKNOWN_ERROR;
     }
     auto status = fetchResults(*nodeSession, nodeSessionOutputs);
-    // TODO outputhandler->postprocessResults
+    if (nodeSessionOutputs.size() == 1 && demultiplyCount) {
+        auto& [metadata, blobMap] = nodeSessionOutputs.begin()->second;
+        std::vector<NodeSessionMetadata> newSessionMetadatas(metadata.generateSubsessions(getName(), demultiplyCount));
+        for(auto& newMetadata : newSessionMetadatas) {
+            // TODO dividedBlobMap 
+            nodeSessionOutputs.emplace(metadata.getSessionKey(), SessionResult{newMetadata, std::move(blobMap)});      
+        }
+        nodeSessionOutputs.erase(metadata);
+    }
     nodeSessions.erase(sessionId);
     return status;
 }
