@@ -33,7 +33,7 @@ using BlobMap = std::unordered_map<std::string, InferenceEngine::Blob::Ptr>;
 class NodeInputHandler {
 protected:
     BlobMap inputBlobs;
-    uint32_t expectedDependencies;
+    uint32_t remainingDependencies;
 
 public:
     NodeInputHandler(uint32_t inputsMissingCount);

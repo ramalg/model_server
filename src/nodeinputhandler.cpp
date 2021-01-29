@@ -20,7 +20,7 @@
 namespace ovms {
 
 NodeInputHandler::NodeInputHandler(uint32_t inputsMissingCount) :
-    expectedDependencies(inputsMissingCount) {
+    remainingDependencies(inputsMissingCount) {
 }
 
 void NodeInputHandler::setInput(const std::string& inputName, InferenceEngine::Blob::Ptr& ptr, session_id_t shardId) {
@@ -28,7 +28,7 @@ void NodeInputHandler::setInput(const std::string& inputName, InferenceEngine::B
         SPDLOG_LOGGER_ERROR(dag_executor_logger, "Tried to set the same input: {} twice for the NodeInputHandler.", inputName);
         throw std::logic_error("Tried to set the same input twice for the NodeInputHandler");
     }
-    inputBlobs.emplace(inputName, ptr);  // TODO error check
+    inputBlobs.emplace(inputName, ptr);
 }
 
 void NodeInputHandler::clearInputs() {
@@ -36,12 +36,12 @@ void NodeInputHandler::clearInputs() {
 }
 
 bool NodeInputHandler::isReady() {
-    return expectedDependencies == 0;
+    return remainingDependencies == 0;
 }
 
 Status NodeInputHandler::notifyFinishedDependency() {
-    SPDLOG_LOGGER_DEBUG(dag_executor_logger, "Expected depencencies count for input handler decreased from:{} to {}", expectedDependencies, expectedDependencies - 1);
-    --expectedDependencies;
+    SPDLOG_LOGGER_DEBUG(dag_executor_logger, "Remaining dependencies count for input handler decreased from: {} to: {}", remainingDependencies, remainingDependencies - 1);
+    --remainingDependencies;
     return StatusCode::OK;
 }
 }  // namespace ovms

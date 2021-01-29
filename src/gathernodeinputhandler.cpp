@@ -22,7 +22,7 @@ namespace ovms {
 
 GatherNodeInputHandler::GatherNodeInputHandler(uint32_t inputsMissingCount, session_id_t shardsCount) :
     NodeInputHandler(inputsMissingCount) {
-    expectedDependencies *= shardsCount;
+    remainingDependencies *= shardsCount;
 }
 
 void GatherNodeInputHandler::setInput(const std::string& inputName, InferenceEngine::Blob::Ptr& ptr, session_id_t shardId) {
@@ -30,7 +30,6 @@ void GatherNodeInputHandler::setInput(const std::string& inputName, InferenceEng
     if (it == shardsStorage.end()) {
         shard_map_t shardMap{{shardId, ptr}};
         auto itDidInsertPair = shardsStorage.emplace(inputName, std::move(shardMap));
-        it = itDidInsertPair.first;
         if (!itDidInsertPair.second) {
             throw std::runtime_error("Tried to insert the same input twice with the same shard id");  // TODO recoverable error
         }
@@ -41,17 +40,16 @@ void GatherNodeInputHandler::setInput(const std::string& inputName, InferenceEng
 
 Status GatherNodeInputHandler::notifyFinishedDependency() {
     NodeInputHandler::notifyFinishedDependency();
-    if (expectedDependencies > 0) {
+    if (remainingDependencies > 0) {
         return StatusCode::OK;
     }
     for (auto& [inputName, shardMap] : shardsStorage) {
         const auto shardsCount = shardMap.size();
         SPDLOG_LOGGER_DEBUG(dag_executor_logger, "Consolidating: {} shards for input: {}", shardsCount, inputName);
-        auto tensorDesc = shardMap[0]->getTensorDesc();
-        InferenceEngine::SizeVector newDims{1};
-        for (auto dim : tensorDesc.getDims()) {
-            newDims.emplace_back(dim);
-        }
+        session_id_t firstShardId = 0;
+        auto tensorDesc = shardMap[firstShardId]->getTensorDesc();
+        auto newDims = tensorDesc.getDims();
+        newDims.insert(newDims.begin(), 1);
         newDims[1] = shardsCount;
         const InferenceEngine::TensorDesc consolidatedBlobDesc(
             tensorDesc.getPrecision(),
@@ -63,7 +61,7 @@ Status GatherNodeInputHandler::notifyFinishedDependency() {
             return status;
         }
         for (auto& [shardId, blob] : shardMap) {
-            const auto memstep = sizeof(float) * blob->size();
+            const auto memstep = blob->byteSize();
             size_t offset = shardId * memstep;
             memcpy((char*)consolidatedBlob->buffer() + offset, blob->cbuffer(), memstep);
         }
