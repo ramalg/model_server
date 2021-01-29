@@ -85,7 +85,7 @@ TEST_F(GatherNodeInputHandlerTest, ThreePredecessorNodesWithSubsessionSize2) {
     }
 }
 
-class GatherNodeTest : public ::testing::Test {};
+class GatherNodeTest : public TestWithTempDir {};
 
 static const char* configDummy1BsDummy2Bs = R"(
 {
