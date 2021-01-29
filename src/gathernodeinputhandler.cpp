@@ -25,11 +25,10 @@ GatherNodeInputHandler::GatherNodeInputHandler(uint32_t inputsMissingCount, sess
 }
 
 void GatherNodeInputHandler::setInput(const std::string& inputName, InferenceEngine::Blob::Ptr& ptr, session_id_t shardId) {
-    // TODO check against shardsCount & TEST
     auto it = shardsStorage.find(inputName);
     if (it == shardsStorage.end()) {
         shard_map_t shardMap{{shardId, ptr}};
-        auto itDidInsertPair = shardsStorage.emplace(inputName, std::move(shardMap));  // TODO error check
+        auto itDidInsertPair = shardsStorage.emplace(inputName, std::move(shardMap));
         it = itDidInsertPair.first;
         if (!itDidInsertPair.second) {
             throw std::runtime_error("Tried to insert the same input twice with the same shard id");  // TODO recoverable error
@@ -62,7 +61,7 @@ void GatherNodeInputHandler::notifyFinishedDependency() {
         for (auto& [shardId, blob] : shardMap) {
             const auto memstep = sizeof(float) * blob->size();
             size_t offset = shardId * memstep;
-            memcpy((char*)consolidatedBlob->buffer() + offset, blob->cbuffer(), memstep);  // TODO dispose ugly cast
+            memcpy((char*)consolidatedBlob->buffer() + offset, blob->cbuffer(), memstep);
         }
         inputBlobs.insert({inputName, consolidatedBlob});
     }
