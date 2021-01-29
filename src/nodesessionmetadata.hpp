@@ -22,6 +22,8 @@
 #include <utility>
 #include <vector>
 
+#include "session_id_t.hpp"
+
 namespace ovms {
 
 using session_id_t = uint32_t;

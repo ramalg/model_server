@@ -15,26 +15,11 @@
 //*****************************************************************************
 #pragma once
 
-#include <memory>
 #include <string>
-#include <unordered_map>
-#include <utility>
-
-#include <inference_engine.hpp>
-
-#include "nodeinputhandler.hpp"
-#include "session_id_t.hpp"
 
 namespace ovms {
 
-using shard_map_t = std::unordered_map<session_id_t, InferenceEngine::Blob::Ptr>;
-
-class GatherNodeInputHandler : public NodeInputHandler {
-    std::unordered_map<std::string, shard_map_t> shardsStorage;
-
-public:
-    GatherNodeInputHandler(uint32_t inputsMissingCount, session_id_t shardsCount);
-    void setInput(const std::string& inputName, InferenceEngine::Blob::Ptr& blobPtr, session_id_t shardId) override;
-    void notifyFinishedDependency() override;
-};
+using session_id_t = uint32_t;
+using session_key_t = std::string;
 }  // namespace ovms
+

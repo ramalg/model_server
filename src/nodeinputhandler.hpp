@@ -23,12 +23,11 @@
 #include <inference_engine.hpp>
 
 #include "blobmap.hpp"
+#include "session_id_t.hpp"
 
 namespace ovms {
 
 using BlobMap = std::unordered_map<std::string, InferenceEngine::Blob::Ptr>;
-
-using session_id_t = uint32_t;  // TODO double from nodesessionmetadata
 
 class NodeInputHandler {
 protected:
