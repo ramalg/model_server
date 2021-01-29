@@ -132,7 +132,7 @@ NodeSession& Node::getNodeSession(const NodeSessionMetadata& metadata) {
     }
     std::unique_ptr<NodeSession> nodeSession = createNodeSession(newSessionMetadata, shardsCount);
     auto emplacePair = nodeSessions.emplace(sessionKey, std::move(nodeSession));
-    return *(*(emplacePair.first)).second;
+    return *(emplacePair.first->second);
 }
 
 std::unique_ptr<NodeSession> Node::createNodeSession(const NodeSessionMetadata& metadata, session_id_t shardsCount) {
