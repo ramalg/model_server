@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 
+#include "custom_node_interface.hpp"
 #include "nodesession.hpp"
 #include "pipelineeventqueue.hpp"
 #include "status.hpp"
@@ -26,15 +27,35 @@ namespace ovms {
 
 class ModelManager;
 class Node;
+class NodeLibrary;
 
 class CustomNodeSession : public NodeSession {
+    struct CustomNodeTensor* outputTensors = nullptr;
+    int outputTensorsLength = 0;
+    const NodeLibrary& library;
+
 public:
-    CustomNodeSession(const NodeSessionMetadata& metadata, const std::string& nodeName, uint32_t inputsCount);
-    CustomNodeSession(const NodeSessionMetadata&& metadata, const std::string& nodeName, uint32_t inputsCount);
+    CustomNodeSession(const NodeSessionMetadata& metadata, const std::string& nodeName, uint32_t inputsCount, const NodeLibrary& library);
+    CustomNodeSession(const NodeSessionMetadata&& metadata, const std::string& nodeName, uint32_t inputsCount, const NodeLibrary& library);
     virtual ~CustomNodeSession();
 
     Status execute(
         PipelineEventQueue& notifyEndQueue,
-        Node& node);
+        Node& node,
+        const NodeLibrary& library,
+        std::unique_ptr<struct CustomNodeParam[]>& parameters,
+        int parametersLength);
+
+    struct CustomNodeTensor* getOutputTensors() {
+        return outputTensors;
+    }
+
+    int getOutputTensorsLength() const {
+        return outputTensorsLength;
+    }
+
+    void clearInputs();
+
+    void release() override;
 };
 }  // namespace ovms

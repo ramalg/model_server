@@ -15,13 +15,15 @@
 //*****************************************************************************
 #pragma once
 
+#include <stdint.h>
+
 struct CustomNodeTensor {
     const char* name;
-    unsigned char* data;
-    int dataLength;
-    int* dims;
-    int dimsLength;
-    int precision;
+    uint8_t* data;
+    uint64_t dataLength;
+    uint64_t* dims;
+    uint64_t dimsLength;
+    uint8_t precision;
 };
 
 struct CustomNodeParam {

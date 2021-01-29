@@ -20,6 +20,18 @@
 #include "../../custom_node_interface.hpp"
 
 extern "C" int execute(const struct CustomNodeTensor* inputs, int inputsLength, struct CustomNodeTensor** outputs, int* outputsLength, const struct CustomNodeParam* params, int paramsLength) {
+    if (paramsLength != 2) {
+        return 1;
+    }
+
+    if (inputsLength != 1) {
+        return 2;
+    }
+
+    if (strcmp(inputs[0].name, "input_numbers") != 0) {
+        return 3;
+    }
+
     float addValue = 0.0f;
     float subValue = 0.0f;
 
@@ -33,16 +45,40 @@ extern "C" int execute(const struct CustomNodeTensor* inputs, int inputsLength, 
     }
 
     printf("CUSTOM ADD_SUB NODE => Parameters passed: add_value:(%f); sub_value:(%f)\n", addValue, subValue);
-    fflush(stdout);
+    printf("CUSTOM ADD_SUB NODE => Number of input tensors passed: (%d)\n", inputsLength);
 
-    *outputsLength = 0;
+    for (int i = 0; i < inputsLength; i++) {
+        printf("CUSTOM ADD_SUB NODE => Input Name(%s) DataLen(%ld) DimLen(%ld)\n", inputs[i].name, inputs[i].dataLength, inputs[i].dimsLength);
+    }
+
+    *outputsLength = 1;
+    *outputs = (struct CustomNodeTensor*)malloc(sizeof(struct CustomNodeTensor) * (*outputsLength));
+    const struct CustomNodeTensor* input = &inputs[0];
+    struct CustomNodeTensor* output = (&(*outputs))[0];
+
+    output->name = "output_numbers";
+    output->data = (uint8_t*)malloc(input->dataLength * sizeof(uint8_t));
+    output->dataLength = input->dataLength;
+    output->dims = (uint64_t*)malloc(input->dimsLength * sizeof(uint64_t));
+    output->dimsLength = input->dimsLength;
+    memcpy((void*)output->dims, (void*)input->dims, input->dimsLength * sizeof(uint64_t));
+    output->precision = input->precision;
+
+    for (uint64_t i = 0; i < output->dataLength; i += sizeof(float)) {
+        *(float*)(output->data + i) = *(float*)(input->data + i) + addValue - subValue;
+    }
+
+    fflush(stdout);
     return 0;
 }
 
 extern "C" int releaseBuffer(struct CustomNodeTensor* output) {
+    free(output->data);
+    free(output->dims);
     return 0;
 }
 
 extern "C" int releaseTensors(struct CustomNodeTensor* outputs) {
+    free(outputs);
     return 0;
 }

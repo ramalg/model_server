@@ -45,6 +45,11 @@ public:
     Status execute(session_key_t sessionKey, PipelineEventQueue& notifyEndQueue) override;
 
     Status fetchResults(NodeSession& nodeSession, SessionResults& nodeSessionOutputs) override;
+    Status fetchResults(BlobMap& outputs, struct CustomNodeTensor* outputsTensors, int outputsLTensorsength, session_key_t sessionKey);
+
+    const std::string& getRealOutputName(const std::string& alias) const {
+        return nodeOutputNameAlias.count(alias) == 1 ? nodeOutputNameAlias.at(alias) : alias;
+    }
 
     std::unique_ptr<NodeSession> createNodeSession(const NodeSessionMetadata& metadata) override;
 };
