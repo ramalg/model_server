@@ -86,12 +86,9 @@ Status Node::setInputs(const Node& dependency, BlobMap& inputs, NodeSessionMetad
             dependency.getName(),
             current_node_input_name,
             dependency_output_name);
-        this->inputBlobs[current_node_input_name] = it->second;
         nodeSession.setInput(current_node_input_name, it->second, shardId);
     }
-    nodeSession.notifyFinishedDependency();  // TODO gatherer need to change this mechanism
-    finishedDependenciesCount++;
-    return StatusCode::OK;
+    return nodeSession.notifyFinishedDependency();
 }
 
 NodeSession& Node::getNodeSession(const session_key_t& sessionKey) const {

@@ -16,6 +16,7 @@
 #include "gathernodeinputhandler.hpp"
 
 #include "logging.hpp"
+#include "ov_utils.hpp"
 
 namespace ovms {
 
@@ -38,10 +39,10 @@ void GatherNodeInputHandler::setInput(const std::string& inputName, InferenceEng
     }
 }
 
-void GatherNodeInputHandler::notifyFinishedDependency() {
+Status GatherNodeInputHandler::notifyFinishedDependency() {
     NodeInputHandler::notifyFinishedDependency();
     if (expectedDependencies > 0) {
-        return;
+        return StatusCode::OK;
     }
     for (auto& [inputName, shardMap] : shardsStorage) {
         const auto shardsCount = shardMap.size();
@@ -56,8 +57,11 @@ void GatherNodeInputHandler::notifyFinishedDependency() {
             tensorDesc.getPrecision(),
             newDims,
             InferenceEngine::Layout::ANY);
-        auto consolidatedBlob = InferenceEngine::make_shared_blob<float>(consolidatedBlobDesc);
-        consolidatedBlob->allocate();
+        InferenceEngine::Blob::Ptr consolidatedBlob;
+        auto status = createSharedBlob(consolidatedBlob, consolidatedBlobDesc);
+        if (!status.ok()) {
+            return status;
+        }
         for (auto& [shardId, blob] : shardMap) {
             const auto memstep = sizeof(float) * blob->size();
             size_t offset = shardId * memstep;
@@ -65,5 +69,6 @@ void GatherNodeInputHandler::notifyFinishedDependency() {
         }
         inputBlobs.insert({inputName, consolidatedBlob});
     }
+    return StatusCode::OK;
 }
 }  // namespace ovms

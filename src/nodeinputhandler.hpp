@@ -24,6 +24,7 @@
 
 #include "blobmap.hpp"
 #include "session_id_t.hpp"
+#include "status.hpp"
 
 namespace ovms {
 
@@ -40,7 +41,7 @@ public:
     virtual const BlobMap& getInputs() const { return inputBlobs; }
     void clearInputs();
     bool isReady();
-    virtual void notifyFinishedDependency();
+    virtual Status notifyFinishedDependency();
     virtual ~NodeInputHandler() = default;
 };
 }  // namespace ovms

@@ -58,7 +58,7 @@ bool NodeSession::isReady() const {
     SPDLOG_LOGGER_DEBUG(dag_executor_logger, "node: {} session: {} isReady: {}", getName(), getSessionKey(), isReady);
     return isReady;
 }
-void NodeSession::notifyFinishedDependency() {
-    this->inputHandler->notifyFinishedDependency();
+Status NodeSession::notifyFinishedDependency() {
+    return this->inputHandler->notifyFinishedDependency();
 }
 }  // namespace ovms

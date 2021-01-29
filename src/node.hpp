@@ -43,11 +43,8 @@ protected:
     std::vector<std::reference_wrapper<Node>> previous;
     std::vector<std::reference_wrapper<Node>> next;
 
-    size_t finishedDependenciesCount = 0;
-
     // Blobs ready and waiting for execution
     std::unordered_map<session_key_t, std::unique_ptr<NodeSession>> nodeSessions;
-    BlobMap inputBlobs;
 
     // Input/Output name mapping and list of required inputs from previous nodes
     std::unordered_map<std::string, Aliases> blobNamesMapping;
@@ -84,9 +81,7 @@ public:
     const Aliases& getMappingByDependency(const Node& dependency) {
         return blobNamesMapping.at(dependency.getName());
     }
-    bool isReady() const {
-        return finishedDependenciesCount == previous.size();
-    }
+
     std::vector<session_key_t> getReadySessions() const;
     const std::vector<std::reference_wrapper<Node>>& getNextNodes() {
         return next;

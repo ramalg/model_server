@@ -39,8 +39,9 @@ bool NodeInputHandler::isReady() {
     return expectedDependencies == 0;
 }
 
-void NodeInputHandler::notifyFinishedDependency() {
+Status NodeInputHandler::notifyFinishedDependency() {
     SPDLOG_LOGGER_DEBUG(dag_executor_logger, "Expected depencencies count for input handler decreased from:{} to {}", expectedDependencies, expectedDependencies - 1);
     --expectedDependencies;
+    return StatusCode::OK;
 }
 }  // namespace ovms

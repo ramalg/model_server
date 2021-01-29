@@ -22,6 +22,7 @@
 #include <inference_engine.hpp>
 
 #include "nodesessionmetadata.hpp"
+#include "status.hpp"
 
 namespace ovms {
 struct NodeInputHandler;
@@ -47,6 +48,6 @@ public:
     bool isReady() const;
     virtual void release() {}
     virtual bool tryDisarm(uint microseconds) { return true; }
-    void notifyFinishedDependency();
+    Status notifyFinishedDependency();
 };
 }  // namespace ovms

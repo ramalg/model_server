@@ -35,6 +35,6 @@ class GatherNodeInputHandler : public NodeInputHandler {
 public:
     GatherNodeInputHandler(uint32_t inputsMissingCount, session_id_t shardsCount);
     void setInput(const std::string& inputName, InferenceEngine::Blob::Ptr& blobPtr, session_id_t shardId) override;
-    void notifyFinishedDependency() override;
+    Status notifyFinishedDependency() override;
 };
 }  // namespace ovms
