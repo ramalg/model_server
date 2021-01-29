@@ -283,7 +283,7 @@ TEST_F(NodeSessionMetadataTest, GetShardId2SubsessionLevelsCollapse2) {
     const int subsessionLev1Index = 4;
     auto subsessionsLevel2 = subsessionsLevel1[subsessionLev1Index].generateSubsessions(subsessionName2nd, subsessionSize2nd);
     for (size_t i = 0; i < subsessionsLevel2.size(); ++i) {
-        EXPECT_EQ(subsessionsLevel2[i].getShardId({subsessionName2nd, subsessionName1st}), 4 * subsessionSize2nd + i);
+        EXPECT_EQ(subsessionsLevel2[i].getShardId({subsessionName2nd, subsessionName1st}), subsessionLev1Index * subsessionSize2nd + i);
     }
 }
 TEST_F(NodeSessionMetadataTest, GetShardId2SubsessionLevelsCollapse3ShouldThrow) {
