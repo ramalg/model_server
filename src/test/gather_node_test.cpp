@@ -187,4 +187,3 @@ TEST_F(GatherNodeTest, FullFlowGatherInNonExitNode) {
     std::copy(nodeRawResults2.begin(), nodeRawResults2.end(), resultBlobData.begin() + nodeRawResults1.size());
     EXPECT_EQ(memcmp((char*)((const void*)gatheredBlob->cbuffer()), resultBlobData.data(), resultBlobData.size() * sizeof(float)), 0);
 }
-

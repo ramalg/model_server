@@ -22,4 +22,3 @@ namespace ovms {
 using session_id_t = uint32_t;
 using session_key_t = std::string;
 }  // namespace ovms
-
