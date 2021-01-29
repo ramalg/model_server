@@ -48,13 +48,44 @@ using testing::_;
 using testing::ElementsAre;
 using testing::Return;
 
-const uint NIREQ = 2;
+class GatherNodeInputHandlerTest : public ::testing::Test {};
 
-class GatherNodeTest : public TestWithTempDir {
-protected:
-    void SetUp() override {
+TEST_F(GatherNodeInputHandlerTest, ThreePredecessorNodesWithSubsessionSize2) {
+    // simulate all 3 inputs comming from different predecessor nodes
+    // with session demultiplexed to 2 shards
+    const std::vector<std::string> inputNames{"a", "b", "c"};
+    const std::vector<size_t> shape{1, 10};
+    const InferenceEngine::Precision precision{InferenceEngine::Precision::FP32};
+    const InferenceEngine::Layout layout{InferenceEngine::Layout::NC};
+    std::vector<float> blobData{-1, 4, 5, 12, 3, 52, 12, 0.5, 9, 1.67};
+    const InferenceEngine::TensorDesc desc{precision, shape, layout};
+    InferenceEngine::Blob::Ptr inputBlob = InferenceEngine::make_shared_blob<float>(desc, blobData.data());
+    const uint32_t shardsCount = 2;  // subsessionSize/demultiplyCount
+    GatherNodeInputHandler gInputHandler(inputNames.size(), shardsCount);
+    for (session_id_t j = 0; j < shardsCount; ++j) {
+        for (size_t i = 0; i < 3; ++i) {
+            EXPECT_FALSE(gInputHandler.isReady());
+            gInputHandler.setInput(inputNames[i], inputBlob, j);
+            // each input comming from different node so we call notify each time
+            gInputHandler.notifyFinishedDependency();
+        }
     }
-};
+    EXPECT_TRUE(gInputHandler.isReady());
+    const auto blobMap = gInputHandler.getInputs();
+    EXPECT_EQ(blobMap.size(), inputNames.size());
+
+    std::vector<float> resultBlobData(blobData.size() * 2);
+    std::copy(blobData.begin(), blobData.end(), resultBlobData.begin());
+    std::copy(blobData.begin(), blobData.end(), resultBlobData.begin() + blobData.size());
+    for (size_t i = 0; i < inputNames.size(); ++i) {
+        const auto& blob = blobMap.at(inputNames[i]);
+        EXPECT_EQ(blob->size(), blobData.size() * 2);
+        EXPECT_THAT(blob->getTensorDesc().getDims(), ElementsAre(1, 2, 10));
+        EXPECT_EQ(memcmp((char*)((const void*)blob->cbuffer()), resultBlobData.data(), resultBlobData.size() * sizeof(float)), 0);
+    }
+}
+
+class GatherNodeTest : public ::testing::Test {};
 
 static const char* configDummy1BsDummy2Bs = R"(
 {
@@ -157,39 +188,3 @@ TEST_F(GatherNodeTest, FullFlowGatherInNonExitNode) {
     EXPECT_EQ(memcmp((char*)((const void*)gatheredBlob->cbuffer()), resultBlobData.data(), resultBlobData.size() * sizeof(float)), 0);
 }
 
-class GatherNodeInputHandlerTest : public ::testing::Test {};
-
-TEST_F(GatherNodeInputHandlerTest, ThreePredecessorNodesWithSubsessionSize2) {
-    // simulate all 3 inputs comming from different predecessor nodes
-    // with session demultiplexed to 2 shards
-    const std::vector<std::string> inputNames{"a", "b", "c"};
-    const std::vector<size_t> shape{1, 10};
-    const InferenceEngine::Precision precision{InferenceEngine::Precision::FP32};
-    const InferenceEngine::Layout layout{InferenceEngine::Layout::NC};
-    std::vector<float> blobData{-1, 4, 5, 12, 3, 52, 12, 0.5, 9, 1.67};
-    const InferenceEngine::TensorDesc desc{precision, shape, layout};
-    InferenceEngine::Blob::Ptr inputBlob = InferenceEngine::make_shared_blob<float>(desc, blobData.data());
-    const uint32_t shardsCount = 2;  // subsessionSize/demultiplyCount
-    GatherNodeInputHandler gInputHandler(inputNames.size(), shardsCount);
-    for (session_id_t j = 0; j < shardsCount; ++j) {
-        for (size_t i = 0; i < 3; ++i) {
-            EXPECT_FALSE(gInputHandler.isReady());
-            gInputHandler.setInput(inputNames[i], inputBlob, j);
-            // each input comming from different node so we call notify each time
-            gInputHandler.notifyFinishedDependency();
-        }
-    }
-    EXPECT_TRUE(gInputHandler.isReady());
-    const auto blobMap = gInputHandler.getInputs();
-    EXPECT_EQ(blobMap.size(), inputNames.size());
-
-    std::vector<float> resultBlobData(blobData.size() * 2);
-    std::copy(blobData.begin(), blobData.end(), resultBlobData.begin());
-    std::copy(blobData.begin(), blobData.end(), resultBlobData.begin() + blobData.size());
-    for (size_t i = 0; i < inputNames.size(); ++i) {
-        const auto& blob = blobMap.at(inputNames[i]);
-        EXPECT_EQ(blob->size(), blobData.size() * 2);
-        EXPECT_THAT(blob->getTensorDesc().getDims(), ElementsAre(1, 2, 10));
-        EXPECT_EQ(memcmp((char*)((const void*)blob->cbuffer()), resultBlobData.data(), resultBlobData.size() * sizeof(float)), 0);
-    }
-}
