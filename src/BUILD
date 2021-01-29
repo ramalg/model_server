@@ -89,6 +89,7 @@ cc_library(
         "nodestreamidguard.hpp",
         "ovinferrequestsqueue.cpp",
         "ovinferrequestsqueue.hpp",
+        "ov_utils.cpp",
         "ov_utils.hpp",
         "pipeline.cpp",
         "pipeline.hpp",
