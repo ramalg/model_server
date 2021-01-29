@@ -23,7 +23,7 @@
 #include <inference_engine.hpp>
 
 #include "nodeinputhandler.hpp"
-#include "session_id_t.hpp"
+#include "session_id.hpp"
 
 namespace ovms {
 

@@ -23,7 +23,7 @@
 #include <inference_engine.hpp>
 
 #include "blobmap.hpp"
-#include "session_id_t.hpp"
+#include "session_id.hpp"
 #include "status.hpp"
 
 namespace ovms {

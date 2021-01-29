@@ -22,7 +22,7 @@
 #include <utility>
 #include <vector>
 
-#include "session_id_t.hpp"
+#include "session_id.hpp"
 
 namespace ovms {
 
